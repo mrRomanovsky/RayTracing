@@ -39,7 +39,7 @@
             this.label18 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.textBoxVerticalAngle = new System.Windows.Forms.TextBox();
-            this.button5 = new System.Windows.Forms.Button();
+            this.BuildSceneButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -144,23 +144,23 @@
             this.textBoxVerticalAngle.TabIndex = 73;
             this.textBoxVerticalAngle.Text = "0";
             // 
-            // button5
+            // BuildSceneButton
             // 
-            this.button5.Location = new System.Drawing.Point(890, 244);
-            this.button5.Margin = new System.Windows.Forms.Padding(2);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(80, 39);
-            this.button5.TabIndex = 79;
-            this.button5.Text = "Построить сцену";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.BuildSceneButton.Location = new System.Drawing.Point(890, 244);
+            this.BuildSceneButton.Margin = new System.Windows.Forms.Padding(2);
+            this.BuildSceneButton.Name = "BuildSceneButton";
+            this.BuildSceneButton.Size = new System.Drawing.Size(80, 39);
+            this.BuildSceneButton.TabIndex = 79;
+            this.BuildSceneButton.Text = "Построить сцену";
+            this.BuildSceneButton.UseVisualStyleBackColor = true;
+            this.BuildSceneButton.Click += new System.EventHandler(this.BuildSceneButtonClick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(990, 557);
-            this.Controls.Add(this.button5);
+            this.Controls.Add(this.BuildSceneButton);
             this.Controls.Add(this.textBoxVerticalAngle);
             this.Controls.Add(this.label19);
             this.Controls.Add(this.label18);
@@ -175,7 +175,6 @@
             this.DoubleBuffered = true;
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -195,7 +194,7 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox textBoxVerticalAngle;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button BuildSceneButton;
     }
 }
 

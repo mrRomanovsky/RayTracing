@@ -14,13 +14,11 @@ namespace Lab6
 {
     public partial class Form1 : Form
     {
-        //Graphics g;
         Bitmap[] bmp;
         Polyhedron ph = null;
         public Form1()
         {
             InitializeComponent();
-            //g = pictureBox1.CreateGraphics();
             bmp = new Bitmap[4];
             bmp[0] = new Bitmap("Iso.bmp");
             bmp[1] = new Bitmap("Oxy.bmp");
@@ -91,31 +89,6 @@ namespace Lab6
                     blue = 255;
                 res = Color.FromArgb(red, green, blue);
             }
-            return res;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private Dictionary<int, int> interpolate(int i0, int d0, int i1, int d1)
-        {
-            Dictionary<int, int> res = new Dictionary<int, int>();
-            if (i0 == i1)
-            {
-                res.Add(i0, d0);
-                return res;
-            }
-
-            double a = (d1 - d0) / (double)(i1 - i0);
-            double d = d0;
-            for (int i = i0; i <= i1; ++i)
-            {
-                res.Add(i, (int)Math.Round(d));
-                d += a;
-            }
-
             return res;
         }
 
@@ -221,7 +194,7 @@ namespace Lab6
         {
             Vector n = new Vector(cam_pos, ray_pos);
             Vector v = new Vector(cam_pos, s.C);
-            double dist = n[v].Norm() / n.Norm();
+            double dist = n[v].Length() / n.Length();
             return dist <= s.R;
         }
 
@@ -241,6 +214,7 @@ namespace Lab6
                    k2 = 2 * (c * d),
                    k3 = (c * c) - s.R * s.R;
             double D = k2 * k2 - 4 * k1 * k3;
+
             if (D < 0)
                 return false;
 
@@ -288,29 +262,37 @@ namespace Lab6
             return Color.FromArgb(r, g, b);
         }
 
-        //трассировка луча (если intense достаточно мал, останавливаемся)
-        private Color RayTrace(Point3d start, Point3d p, double intense)
+        private Tuple<Object, Point3d> ClosestObject(Point3d start, Point3d p)
         {
-            if (intense < 0.01)
-                return Color.Black;
-
+            Object res = null;
             double dist = double.MaxValue;
-            Object obj = null;
             Point3d cross = new Point3d();
             foreach (var o in objects)
             {
                 Point3d t = new Point3d();
                 if (o.find_cross(start, p, ref t))
                 {
-                    double d1 = new Vector(start, t).Norm();
+                    double d1 = new Vector(start, t).Length();
                     if (d1 < dist)
                     {
                         dist = d1;
-                        obj = o;
+                        res = o;
                         cross = t;
                     }
                 }
             }
+
+            return new Tuple<Object, Point3d>(res, cross);
+        }
+
+        //трассировка луча (если intense достаточно мал, останавливаемся)
+        private Color RayTrace(Point3d start, Point3d p, double intense)
+        {
+            if (intense < 0.01)
+                return Color.Black;
+            var closestIntersection = ClosestObject(start, p);
+            var obj = closestIntersection.Item1;
+            var cross = closestIntersection.Item2;
 
             if (obj == null)
                 return ambient;
@@ -324,8 +306,7 @@ namespace Lab6
                 double trans_coeff = 1;
                 foreach (var o in objects)
                 {
-                    //if (FindIntersection(cross, l, s, ref tt))
-                    if (o.find_cross(cross, l, ref tt) && new Vector(tt, cross).Norm() < new Vector(l, cross).Norm())
+                    if (o.find_cross(cross, l, ref tt) && new Vector(tt, cross).Length() < new Vector(l, cross).Length())
                     {
                         if (trans[o] > 0)
                             trans_coeff *= trans[o];
@@ -338,7 +319,6 @@ namespace Lab6
                 }
                 if (flag)
                     continue;
-                //ll += lights_power[l];
 
                 double kd = diffuse[obj];
                 double l0 = lights_power[l];
@@ -346,7 +326,7 @@ namespace Lab6
                 Vector L = new Vector(cross, l);
                 if (N * L < 0)
                     N = -N;
-                double cos = (N * L) / N.Norm() / L.Norm();
+                double cos = (N * L) / N.Length() / L.Length();
                 ldiff += kd * cos * l0 * trans_coeff;
             }
 
@@ -436,6 +416,31 @@ namespace Lab6
             return AddCols(clr_diff, clr_refl, clr_trans, reflect[obj] > 0, trans[obj] > 0);
         }
 
+        private void AddWallProperties()
+        {
+            colors.Add(objects.Last(), Color.DarkBlue);
+            diffuse.Add(objects.Last(), 0.8);
+            reflect.Add(objects.Last(), 0.2);
+            trans.Add(objects.Last(), 0);
+            refract.Add(objects.Last(), 1);
+        }
+
+        private void AddWalls()
+        {
+            objects.Add(new Wall(new Point3d(-5, -5, -5), new Point3d(-5, -5, 5), new Point3d(-5, 5, 5), new Point3d(-5, 5, -5)));
+            AddWallProperties();
+            objects.Add(new Wall(new Point3d(-5, 5, -5), new Point3d(-5, 5, 5), new Point3d(5, 5, 5), new Point3d(5, 5, -5)));
+            AddWallProperties();
+            objects.Add(new Wall(new Point3d(5, 5, -5), new Point3d(5, 5, 5), new Point3d(5, -5, 5), new Point3d(5, -5, -5)));
+            AddWallProperties();
+            objects.Add(new Wall(new Point3d(5, -5, -5), new Point3d(5, -5, 5), new Point3d(-5, -5, 5), new Point3d(-5, -5, -5)));
+            AddWallProperties();
+            objects.Add(new Wall(new Point3d(-5, -5, 5), new Point3d(5, -5, 5), new Point3d(5, 5, 5), new Point3d(-5, 5, 5)));
+            AddWallProperties();
+            objects.Add(new Wall(new Point3d(-5, -5, -5), new Point3d(5, -5, -5), new Point3d(5, 5, -5), new Point3d(-5, 5, -5)));
+            AddWallProperties();
+        }
+
         //добавление в сцену фигур
         private void Init()
         {
@@ -446,7 +451,7 @@ namespace Lab6
             trans.Clear();
             refract.Clear();
 
-            // снеговик
+            // шар
             objects.Add(new Sphere(new Point3d(1, -2, -2), 1));
             colors.Add(objects.Last(), Color.White);
             diffuse.Add(objects.Last(), 0.8);
@@ -454,13 +459,10 @@ namespace Lab6
             trans.Add(objects.Last(), 1);
             refract.Add(objects.Last(), 1.5);
 
-            /*objects.Add(new Sphere(new Point3d(-2, 1, -2.5), 0.7));
-            colors.Add(objects.Last(), Color.White);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0.8);
-            refract.Add(objects.Last(), 1.5);*/
+            //комната
+            AddWalls();
 
+            //куб
             objects.Add(new Poly(Polyhedron.CreateHexahedron(
                 new Point3d(-1, 0, -5),
                 new Point3d(0, -1, -5),
@@ -471,79 +473,8 @@ namespace Lab6
             trans.Add(objects.Last(), 0);
             refract.Add(objects.Last(), 1);
 
-            #region стены
-            objects.Add(new Wall(
-                new Point3d(-5, -5, -5), 
-                new Point3d(-5, -5, 5), 
-                new Point3d(-5, 5, 5), 
-                new Point3d(-5, 5, -5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-
-            objects.Add(new Wall(
-                new Point3d(-5, 5, -5),
-                new Point3d(-5, 5, 5),
-                new Point3d(5, 5, 5),
-                new Point3d(5, 5, -5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-
-            objects.Add(new Wall(
-                new Point3d(5, 5, -5),
-                new Point3d(5, 5, 5),
-                new Point3d(5, -5, 5),
-                new Point3d(5, -5, -5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-
-            objects.Add(new Wall(
-                new Point3d(5, -5, -5),
-                new Point3d(5, -5, 5),
-                new Point3d(-5, -5, 5),
-                new Point3d(-5, -5, -5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-
-            objects.Add(new Wall(
-               new Point3d(-5, -5, 5),
-               new Point3d(5, -5, 5),
-               new Point3d(5, 5, 5),
-               new Point3d(-5, 5, 5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-
-            objects.Add(new Wall(
-               new Point3d(-5, -5, -5),
-               new Point3d(5, -5, -5),
-               new Point3d(5, 5, -5),
-               new Point3d(-5, 5, -5)));
-            colors.Add(objects.Last(), Color.DarkBlue);
-            diffuse.Add(objects.Last(), 0.8);
-            reflect.Add(objects.Last(), 0.2);
-            trans.Add(objects.Last(), 0);
-            refract.Add(objects.Last(), 1);
-            #endregion
-
             lights.Clear();
             lights_power.Clear();
-
-            //lights.Add(new Point3d(-4.9, -4.9, -4.9));
-            //lights_power.Add(lights.Last(), 1);
 
             lights.Add(new Point3d(0, 3.9, 0));
             lights_power.Add(lights.Last(), 1);
@@ -551,7 +482,7 @@ namespace Lab6
 
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void BuildSceneButtonClick(object sender, EventArgs e)
         {
             Init(); //добавление в сцену фигур
 
@@ -562,7 +493,6 @@ namespace Lab6
                 double.Parse(textBoxCameraY.Text), 
                 double.Parse(textBoxCameraZ.Text)); //позиция камеры
 
-            //g.Clear(ambient);
             for (int i = 0; i < pictureBox1.Height; i += 1)
                 for (int j = 0; j < pictureBox1.Width; j += 1)
                 {

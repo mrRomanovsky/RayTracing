@@ -289,7 +289,7 @@ namespace Lab6
             Point3d c = GetThirdVertexForTriangle(a, b, q);
             Vector m = new Vector(a, b);
             Vector n = new Vector(a, c);
-            double sideLen = m.Norm();
+            double sideLen = m.Length();
             double hLen = sideLen * Math.Sqrt(6) / 3.0;
             Vector h = m[n].Normalize() * hLen;
             Vector r = h + ((m + n) * (1.0 / 3.0));
@@ -317,7 +317,7 @@ namespace Lab6
             Point3d d = cd[1];
             Vector m = new Vector(a, b);
             Vector n = new Vector(a, c);
-            double sideLen = m.Norm();            
+            double sideLen = m.Length();            
             Vector h = m[n].Normalize() * sideLen;
             Point3d a1 = new Point3d(a.X + h.X, a.Y + h.Y, a.Z + h.Z);
             Point3d b1 = new Point3d(b.X + h.X, b.Y + h.Y, b.Z + h.Z);
@@ -348,7 +348,7 @@ namespace Lab6
             Point3d d = cd[1];
             Vector m = new Vector(a, b);
             Vector n = new Vector(a, d);
-            double sideLen = m.Norm();
+            double sideLen = m.Length();
             double hLen = sideLen / Math.Sqrt(2);
             Vector h = m[n].Normalize() * hLen;
             Vector r = h + ((m + n) * 0.5);
@@ -458,7 +458,7 @@ namespace Lab6
         {
             Vector m = new Vector(a, b);
             Vector n = new Vector(a, q);
-            double sideLen = m.Norm();
+            double sideLen = m.Length();
             double hLen = sideLen * Math.Sqrt(3) / 2.0;
 
             double coeff = (m * n) / (m * m);
@@ -471,7 +471,7 @@ namespace Lab6
         {
             Vector m = new Vector(a, b);
             Vector n = new Vector(a, q);
-            double sideLen = m.Norm();
+            double sideLen = m.Length();
 
             double coeff = (m * n) / (m * m);
             Vector h = (n - (coeff * m)).Normalize() * sideLen;
@@ -569,14 +569,14 @@ namespace Lab6
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
-        public double Norm()
+        public double Length()
         {
             return Math.Sqrt(this * this);
         }
         
         public Vector Normalize()
         {
-            return this * (1.0 / this.Norm());
+            return this * (1.0 / this.Length());
         }
 
         public Vector this[Vector a]
@@ -846,12 +846,12 @@ namespace Lab6
         public Sphere(Polyhedron ph)
         {
             var p = ph.Faces[0].Edges[0].First;
-            var dist = new Vector(ph.Center, p).Norm();
+            var dist = new Vector(ph.Center, p).Length();
             foreach (var f in ph.Faces)
                 foreach (var e in f.Edges)
                 {
                     var pp = e.First;
-                    var ddist = new Vector(ph.Center, pp).Norm();
+                    var ddist = new Vector(ph.Center, pp).Length();
                     if (ddist > dist)
                     {
                         dist = ddist;
@@ -929,9 +929,9 @@ namespace Lab6
 
         private double triangle_square(Point3d A, Point3d B, Point3d C)
         {
-            double a = new Vector(B, C).Norm();
-            double b = new Vector(A, C).Norm();
-            double c = new Vector(A, B).Norm();
+            double a = new Vector(B, C).Length();
+            double b = new Vector(A, C).Length();
+            double c = new Vector(A, B).Length();
             double p = (a + b + c) / 2;
             return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
         }
@@ -1011,9 +1011,9 @@ namespace Lab6
 
         private double triangle_square(Point3d A, Point3d B, Point3d C)
         {
-            double a = new Vector(B, C).Norm();
-            double b = new Vector(A, C).Norm();
-            double c = new Vector(A, B).Norm();
+            double a = new Vector(B, C).Length();
+            double b = new Vector(A, C).Length();
+            double c = new Vector(A, B).Length();
             double p = (a + b + c) / 2;
             return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
         }
@@ -1058,7 +1058,7 @@ namespace Lab6
                     square += triangle_square(face.Edges[i].First, face.Edges[(i + 1) % cnt].First, t);
                 if (Math.Abs(squares[face] - square) > eps)
                     continue;
-                var dist_t = new Vector(cam_pos, t).Norm();
+                var dist_t = new Vector(cam_pos, t).Length();
                 if (dist_t < dist)
                 {
                     res = t.Clone() as Point3d;
