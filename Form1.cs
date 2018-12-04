@@ -457,7 +457,7 @@ namespace Lab6
             diffuse.Add(objects.Last(), 0.8);
             reflect.Add(objects.Last(), 0);
             trans.Add(objects.Last(), 1);
-            refract.Add(objects.Last(), 1.5);
+            refract.Add(objects.Last(), 0);
 
             //комната
             AddWalls();
@@ -467,7 +467,7 @@ namespace Lab6
                 new Point3d(-1, 0, -5),
                 new Point3d(0, -1, -5),
                 new Point3d(0, 1, -5))));
-            colors.Add(objects.Last(), Color.Orange);
+            colors.Add(objects.Last(), Color.Green);
             diffuse.Add(objects.Last(), 0.8);
             reflect.Add(objects.Last(), 0);
             trans.Add(objects.Last(), 0);
@@ -479,6 +479,9 @@ namespace Lab6
             lights.Add(new Point3d(0, 3.9, 0));
             lights_power.Add(lights.Last(), 1);
 
+
+            /*lights.Add(new Point3d(2, 3.9, 0));
+            lights_power.Add(lights.Last(), 1);*/
 
         }
 
